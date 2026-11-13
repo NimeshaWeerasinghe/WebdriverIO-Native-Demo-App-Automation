@@ -3,8 +3,9 @@
  * a successful sign-up, and when the "Active" button is tapped).
  */
 class NativeAlert {
+    // React Native renders the alert title in its own TextView, so it has the app's id, not Android's.
     get title() {
-        return $('id=android:id/alertTitle');
+        return $('id=com.wdiodemoapp:id/alert_title');
     }
 
     get message() {
