@@ -1,0 +1,51 @@
+# Runs the full test suite on an iOS simulator, using the release's prebuilt simulator build.
+# GitHub's macOS runners come with Xcode and iOS simulators installed (free for public repositories).
+name: iOS simulator tests
+
+on:
+  workflow_dispatch: # run manually from the Actions tab
+  push:
+    branches: [main]
+
+jobs:
+  ios-simulator:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies (incl. Appium 2 and the XCUITest driver)
+        run: npm ci
+
+      - name: Download the iOS simulator build
+        run: npm run download:app:ios
+
+      - name: Boot an iPhone simulator
+        id: simulator
+        run: echo "udid=$(scripts/boot-ios-simulator.sh)" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests on iOS
+        env:
+          PLATFORM: ios
+          IOS_SIMULATOR: 'true'
+          IOS_UDID: ${{ steps.simulator.outputs.udid }}
+          IOS_APP_PATH: apps/ios/ios.simulator.wdio.native.app.v2.2.0.zip
+        run: npm run test:ios
+
+      - name: Build Allure report
+        if: always()
+        run: npx allure generate reports/allure-results --clean -o reports/allure-report
+
+      - name: Upload Allure report and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-allure-report
+          path: |
+            reports/allure-report
+            reports/logs
