@@ -10,11 +10,19 @@ export function appId(): string {
 export async function hideKeyboard() {
     if (!(await driver.isKeyboardShown())) return;
     if (driver.isIOS) {
-        // The iOS keyboard has no "hide" button; tap its return/done key instead.
-        await driver.execute('mobile: hideKeyboard', { keys: ['return', 'Return', 'done', 'Done'] });
+        // The iOS keyboard has no "hide" key. Tap the "Done" button above it, or else its return key.
+        const doneButton = $('-ios predicate string:type == "XCUIElementTypeButton" AND name == "Done"');
+        if (await doneButton.isDisplayed()) {
+            await doneButton.click();
+        } else {
+            await driver.execute('mobile: hideKeyboard', { keys: ['return', 'Return', 'done', 'Done'] });
+        }
     } else {
         await driver.hideKeyboard();
     }
+    await driver.waitUntil(async () => !(await driver.isKeyboardShown()), {
+        timeoutMsg: 'The on-screen keyboard did not close.',
+    });
 }
 
 /**
