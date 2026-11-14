@@ -15,7 +15,9 @@ export async function hideKeyboard() {
         if (await doneButton.isDisplayed()) {
             await doneButton.click();
         } else {
-            await driver.execute('mobile: hideKeyboard', { keys: ['return', 'Return', 'done', 'Done'] });
+            // Tapping an empty spot of the screen's scroll view (below the title) closes the keyboard in React Native.
+            const { width } = await driver.getWindowRect();
+            await driver.execute('mobile: tap', { x: Math.round(width / 2), y: 110 });
         }
     } else {
         await driver.hideKeyboard();
