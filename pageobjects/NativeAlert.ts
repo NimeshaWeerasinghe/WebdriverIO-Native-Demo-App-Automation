@@ -3,8 +3,8 @@ import { forPlatform } from '../utils/platform';
 /**
  * A native alert dialog (the app shows one after a successful login,
  * a successful sign-up, and when the "Active" button is tapped).
- * Alerts are OS dialogs, so their locators differ per platform.
  */
+
 class NativeAlert {
     get title() {
         return $(
