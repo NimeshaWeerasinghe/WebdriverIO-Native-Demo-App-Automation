@@ -47,8 +47,8 @@ export const config: WebdriverIO.Config = {
 
     // Default time that explicit waits (waitForDisplayed, waitUntil, expect matchers) keep polling.
     waitforTimeout: 10000,
-    // Creating an iOS session builds WebDriverAgent first, which can take several minutes.
-    connectionRetryTimeout: env.platform === 'ios' ? 600000 : 180000,
+    // Creating the first iOS session builds WebDriverAgent, which can take over 10 minutes on CI.
+    connectionRetryTimeout: env.platform === 'ios' ? 1200000 : 180000,
     connectionRetryCount: 1,
 
     // Starts a local Appium server for the run, unless an external one is configured.

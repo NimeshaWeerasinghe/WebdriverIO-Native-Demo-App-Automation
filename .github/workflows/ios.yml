@@ -33,6 +33,7 @@ jobs:
         env:
           PLATFORM: ios
           IOS_SIMULATOR: 'true'
+          IOS_HEADLESS: 'true'
           IOS_UDID: ${{ steps.simulator.outputs.udid }}
           IOS_APP_PATH: apps/ios/ios.simulator.wdio.native.app.v2.2.0.zip
         run: npm run test:ios

@@ -41,9 +41,12 @@ function iosCapabilities(): WebdriverIO.Capabilities {
         // Building WebDriverAgent the first time can take several minutes.
         'appium:wdaLaunchTimeout': 300000,
         'appium:showXcodeLog': true,
-        // Real-device signing for WebDriverAgent (see README, "iOS real-device setup"). Simulators need none.
+        // Simulators need no signing; real devices need WebDriverAgent signing (see README, "iOS real-device setup").
         ...(ios.simulator
-            ? {}
+            ? {
+                  'appium:isHeadless': ios.headless,
+                  'appium:simulatorStartupTimeout': 300000,
+              }
             : {
                   'appium:xcodeOrgId': ios.xcodeOrgId,
                   'appium:xcodeSigningId': ios.xcodeSigningId,

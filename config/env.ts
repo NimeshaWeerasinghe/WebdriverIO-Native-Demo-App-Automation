@@ -90,6 +90,8 @@ function readIos() {
     }
     return {
         simulator,
+        // IOS_HEADLESS=true runs the simulator without a window (used on CI).
+        headless: read('IOS_HEADLESS')?.toLowerCase() === 'true',
         deviceName: read('IOS_DEVICE_NAME') ?? (simulator ? 'iPhone 16' : 'iPhone'),
         udid,
         platformVersion,
