@@ -1,5 +1,3 @@
-import { FormsLocators } from '../locators/forms.locators';
-import { forPlatform } from '../utils/platform';
 import TabBar from './TabBar';
 
 /**
@@ -7,27 +5,27 @@ import TabBar from './TabBar';
  */
 class FormsPage {
     get screen() {
-        return $(forPlatform(FormsLocators.screen));
+        return $('~Forms-screen');
     }
 
     get textInput() {
-        return $(forPlatform(FormsLocators.textInput));
+        return $('~text-input');
     }
 
     get typedTextResult() {
-        return $(forPlatform(FormsLocators.typedTextResult));
+        return $('~input-text-result');
     }
 
     get switchToggle() {
-        return $(forPlatform(FormsLocators.switchToggle));
+        return $('~switch');
     }
 
     get switchLabel() {
-        return $(forPlatform(FormsLocators.switchLabel));
+        return $('~switch-text');
     }
 
     get activeButton() {
-        return $(forPlatform(FormsLocators.activeButton));
+        return $('~button-Active');
     }
 
     async open() {

@@ -1,46 +1,52 @@
-import { LoginLocators } from '../locators/login.locators';
 import { hideKeyboard } from '../utils/app';
 import { forPlatform } from '../utils/platform';
 import TabBar from './TabBar';
 
 /**
  * Login tab: one form with two modes, "Login" and "Sign up".
+ * Elements are found by accessibility id (`~`), which is the same on Android and iOS.
  */
 class LoginPage {
     get screen() {
-        return $(forPlatform(LoginLocators.screen));
+        return $('~Login-screen');
     }
 
     get loginModeButton() {
-        return $(forPlatform(LoginLocators.loginModeButton));
+        return $('~button-login-container');
     }
 
     get signUpModeButton() {
-        return $(forPlatform(LoginLocators.signUpModeButton));
+        return $('~button-sign-up-container');
     }
 
     get emailInput() {
-        return $(forPlatform(LoginLocators.emailInput));
+        return $('~input-email');
     }
 
     get passwordInput() {
-        return $(forPlatform(LoginLocators.passwordInput));
+        return $('~input-password');
     }
 
     get repeatPasswordInput() {
-        return $(forPlatform(LoginLocators.repeatPasswordInput));
+        return $('~input-repeat-password');
     }
 
     get loginButton() {
-        return $(forPlatform(LoginLocators.loginButton));
+        return $('~button-LOGIN');
     }
 
     get signUpButton() {
-        return $(forPlatform(LoginLocators.signUpButton));
+        return $('~button-SIGN UP');
     }
 
+    /** Validation messages have no accessibility id, so they are found by their visible text. */
     errorMessage(text: string) {
-        return $(forPlatform(LoginLocators.errorMessage(text)));
+        return $(
+            forPlatform({
+                android: `android=new UiSelector().text("${text}")`,
+                ios: `-ios predicate string:label == "${text}"`,
+            }),
+        );
     }
 
     /** Opens the Login tab in "Login" mode, whatever screen or mode the app was left in. */

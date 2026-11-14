@@ -1,17 +1,15 @@
-import { TabBarLocators } from '../locators/tabBar.locators';
 import { closeOverlays } from '../utils/app';
-import { forPlatform } from '../utils/platform';
 
 /**
  * The bottom tab bar that is visible on every screen of the app.
  */
 class TabBar {
     get loginTab() {
-        return $(forPlatform(TabBarLocators.loginTab));
+        return $('~Login');
     }
 
     get formsTab() {
-        return $(forPlatform(TabBarLocators.formsTab));
+        return $('~Forms');
     }
 
     async waitForTabBarShown() {
