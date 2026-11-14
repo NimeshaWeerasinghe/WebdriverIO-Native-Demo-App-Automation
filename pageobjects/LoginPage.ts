@@ -63,7 +63,7 @@ class LoginPage {
         await this.repeatPasswordInput.waitForDisplayed({ timeoutMsg: 'The Sign up form did not open.' });
     }
 
-    private async openTab() {
+    async openTab() {
         await TabBar.openLogin();
         await this.screen.waitForDisplayed({ timeoutMsg: 'The Login screen did not open.' });
     }
