@@ -20,7 +20,16 @@ export const config: WebdriverIO.Config = {
     // Connect to an external Appium server when APPIUM_SERVER_URL is set.
     ...(env.appiumServer ?? {}),
 
-    specs: ['./tests/**/*.spec.ts'],
+    // The inner array runs all spec files in ONE worker, i.e. one Appium session:
+    // the app is launched once, stays open for the whole run, and the files run in this order.
+    specs: [
+        [
+            './tests/smoke/*.spec.ts',
+            './tests/signup/*.spec.ts',
+            './tests/login/*.spec.ts',
+            './tests/forms/*.spec.ts',
+        ],
+    ],
     suites: {
         smoke: ['./tests/smoke/*.spec.ts'],
         signup: ['./tests/signup/*.spec.ts'],
@@ -28,7 +37,7 @@ export const config: WebdriverIO.Config = {
         forms: ['./tests/forms/*.spec.ts'],
     },
 
-    // One device means one session at a time.
+    // One device, one session, tests run one after another.
     maxInstances: 1,
     capabilities: [capabilitiesForPlatform()],
 

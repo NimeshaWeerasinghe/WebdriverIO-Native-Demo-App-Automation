@@ -20,6 +20,8 @@ function androidCapabilities(): WebdriverIO.Capabilities {
         'appium:appActivity': android.appActivity,
         'appium:autoGrantPermissions': true,
         'appium:newCommandTimeout': NEW_COMMAND_TIMEOUT_SECONDS,
+        // The app is launched once at session start and only closed when the session ends.
+        'appium:shouldTerminateApp': true,
     };
 }
 
@@ -34,6 +36,8 @@ function iosCapabilities(): WebdriverIO.Capabilities {
         // Install from a signed build if given, otherwise launch the already installed app.
         ...(ios.appPath ? { 'appium:app': ios.appPath } : { 'appium:bundleId': ios.bundleId }),
         'appium:newCommandTimeout': NEW_COMMAND_TIMEOUT_SECONDS,
+        // The app is launched once at session start and only closed when the session ends.
+        'appium:shouldTerminateApp': true,
         // Real-device signing for WebDriverAgent (see README, "iOS real-device setup").
         'appium:xcodeOrgId': ios.xcodeOrgId,
         'appium:xcodeSigningId': ios.xcodeSigningId,
