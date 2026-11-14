@@ -26,6 +26,13 @@ class NativeAlert {
         await this.title.waitForDisplayed({ reverse: true, timeoutMsg: 'The native alert did not close.' });
     }
 
+    /** Closes the alert if one is open; does nothing (and does not wait) otherwise. */
+    async closeIfOpen() {
+        if (await this.title.isDisplayed()) {
+            await this.tapOk();
+        }
+    }
+
     async tapOk() {
         await this.okButton.click();
         await this.waitForClosed();

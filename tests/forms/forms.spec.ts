@@ -1,11 +1,9 @@
 import FormsPage from '../../pageobjects/FormsPage';
 import NativeAlert from '../../pageobjects/NativeAlert';
-import { restartApp } from '../../utils/app';
 import { messages } from '../data/testData';
 
 describe('Forms', () => {
     beforeEach(async () => {
-        await restartApp();
         await FormsPage.open();
     });
 
@@ -17,6 +15,8 @@ describe('Forms', () => {
     });
 
     it('toggles the switch and updates its label', async () => {
+        await FormsPage.turnSwitchOff();
+
         await expect(FormsPage.switchLabel).toHaveText(messages.switchOff);
         expect(await FormsPage.isSwitchOn()).toBe(false);
 

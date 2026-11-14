@@ -11,6 +11,10 @@ class LoginPage {
         return $(forPlatform(LoginLocators.screen));
     }
 
+    get loginModeButton() {
+        return $(forPlatform(LoginLocators.loginModeButton));
+    }
+
     get signUpModeButton() {
         return $(forPlatform(LoginLocators.signUpModeButton));
     }
@@ -39,15 +43,23 @@ class LoginPage {
         return $(forPlatform(LoginLocators.errorMessage(text)));
     }
 
-    async open() {
-        await TabBar.openLogin();
-        await this.screen.waitForDisplayed({ timeoutMsg: 'The Login screen did not open.' });
+    /** Opens the Login tab in "Login" mode, whatever screen or mode the app was left in. */
+    async openLogin() {
+        await this.openTab();
+        await this.loginModeButton.click();
+        await this.repeatPasswordInput.waitForDisplayed({ reverse: true, timeoutMsg: 'The Login form did not open.' });
     }
 
+    /** Opens the Login tab in "Sign up" mode, whatever screen or mode the app was left in. */
     async openSignUp() {
-        await this.open();
+        await this.openTab();
         await this.signUpModeButton.click();
         await this.repeatPasswordInput.waitForDisplayed({ timeoutMsg: 'The Sign up form did not open.' });
+    }
+
+    private async openTab() {
+        await TabBar.openLogin();
+        await this.screen.waitForDisplayed({ timeoutMsg: 'The Login screen did not open.' });
     }
 
     async login(email: string, password: string) {

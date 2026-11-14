@@ -1,11 +1,9 @@
 import LoginPage from '../../pageobjects/LoginPage';
 import NativeAlert from '../../pageobjects/NativeAlert';
-import { restartApp } from '../../utils/app';
 import { invalidInput, messages, users } from '../data/testData';
 
 describe('Sign up', () => {
     beforeEach(async () => {
-        await restartApp();
         await LoginPage.openSignUp();
     });
 

@@ -35,6 +35,13 @@ class FormsPage {
         await this.screen.waitForDisplayed({ timeoutMsg: 'The Forms screen did not open.' });
     }
 
+    /** Puts the switch in the OFF state, since the app keeps its state between tests. */
+    async turnSwitchOff() {
+        if (await this.isSwitchOn()) {
+            await this.switchToggle.click();
+        }
+    }
+
     /** Android reports the switch state in "checked", iOS in "value" ("1" when on). */
     async isSwitchOn() {
         if (driver.isIOS) {

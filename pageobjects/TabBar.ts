@@ -1,4 +1,5 @@
 import { TabBarLocators } from '../locators/tabBar.locators';
+import { closeOverlays } from '../utils/app';
 import { forPlatform } from '../utils/platform';
 
 /**
@@ -18,10 +19,12 @@ class TabBar {
     }
 
     async openLogin() {
+        await closeOverlays();
         await this.loginTab.click();
     }
 
     async openForms() {
+        await closeOverlays();
         await this.formsTab.click();
     }
 }
