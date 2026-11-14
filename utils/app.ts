@@ -8,7 +8,11 @@ export function appId(): string {
 
 /** Hides the on-screen keyboard if it is open, so it cannot cover buttons or the tab bar. */
 export async function hideKeyboard() {
-    if (await driver.isKeyboardShown()) {
+    if (!(await driver.isKeyboardShown())) return;
+    if (driver.isIOS) {
+        // The iOS keyboard has no "hide" button; tap its return/done key instead.
+        await driver.execute('mobile: hideKeyboard', { keys: ['return', 'Return', 'done', 'Done'] });
+    } else {
         await driver.hideKeyboard();
     }
 }

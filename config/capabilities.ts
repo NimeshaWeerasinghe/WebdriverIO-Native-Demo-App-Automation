@@ -38,12 +38,17 @@ function iosCapabilities(): WebdriverIO.Capabilities {
         'appium:newCommandTimeout': NEW_COMMAND_TIMEOUT_SECONDS,
         // The app is launched once at session start and only closed when the session ends.
         'appium:shouldTerminateApp': true,
-        // Real-device signing for WebDriverAgent (see README, "iOS real-device setup").
-        'appium:xcodeOrgId': ios.xcodeOrgId,
-        'appium:xcodeSigningId': ios.xcodeSigningId,
-        'appium:updatedWDABundleId': ios.updatedWdaBundleId,
-        'appium:wdaLaunchTimeout': 120000,
+        // Building WebDriverAgent the first time can take several minutes.
+        'appium:wdaLaunchTimeout': 300000,
         'appium:showXcodeLog': true,
+        // Real-device signing for WebDriverAgent (see README, "iOS real-device setup"). Simulators need none.
+        ...(ios.simulator
+            ? {}
+            : {
+                  'appium:xcodeOrgId': ios.xcodeOrgId,
+                  'appium:xcodeSigningId': ios.xcodeSigningId,
+                  'appium:updatedWDABundleId': ios.updatedWdaBundleId,
+              }),
     };
 }
 

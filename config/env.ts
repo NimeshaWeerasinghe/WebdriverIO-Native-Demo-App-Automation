@@ -11,7 +11,7 @@ import path from 'node:path';
 export type Platform = 'android' | 'ios';
 
 const DEFAULT_ANDROID_APP = 'apps/android/android.wdio.native.app.v2.2.0.apk';
-const DEFAULT_IOS_BUNDLE_ID = 'org.reactjs.native.example.wdiodemoapp';
+const DEFAULT_IOS_BUNDLE_ID = 'org.wdiodemoapp';
 
 function read(name: string): string | undefined {
     const value = process.env[name]?.trim();
@@ -73,21 +73,32 @@ function readAndroid() {
 }
 
 function readIos() {
+    // IOS_SIMULATOR=true runs on an iOS simulator (e.g. the release's simulator build); otherwise a real iPhone.
+    const simulator = read('IOS_SIMULATOR')?.toLowerCase() === 'true';
     const udid = read('IOS_UDID');
-    if (!udid) {
+    const platformVersion = read('IOS_PLATFORM_VERSION');
+    if (!simulator && !udid) {
         fail('IOS_UDID is required for an iOS real device. Find it with "xcrun xctrace list devices".');
+    }
+    if (simulator && !udid && !platformVersion) {
+        fail('For a simulator, set IOS_UDID (see "xcrun simctl list devices") or IOS_DEVICE_NAME and IOS_PLATFORM_VERSION.');
     }
     const appPathValue = read('IOS_APP_PATH');
     const bundleIdValue = read('IOS_BUNDLE_ID');
     if (!appPathValue && !bundleIdValue) {
-        fail('Set IOS_APP_PATH to a signed .ipa/.app, or IOS_BUNDLE_ID if the app is already installed on the device.');
+        fail('Set IOS_APP_PATH to the app (.app, .zip or signed .ipa), or IOS_BUNDLE_ID if it is already installed.');
     }
     return {
-        deviceName: read('IOS_DEVICE_NAME') ?? 'iPhone',
+        simulator,
+        deviceName: read('IOS_DEVICE_NAME') ?? (simulator ? 'iPhone 16' : 'iPhone'),
         udid,
-        platformVersion: read('IOS_PLATFORM_VERSION'),
+        platformVersion,
         appPath: appPathValue
-            ? existingFile('IOS_APP_PATH', appPathValue, 'It must be a signed device build (.ipa or .app).')
+            ? existingFile(
+                  'IOS_APP_PATH',
+                  appPathValue,
+                  simulator ? 'Run "npm run download:app:ios" for the simulator build.' : 'It must be a signed device build.',
+              )
             : undefined,
         bundleId: bundleIdValue ?? DEFAULT_IOS_BUNDLE_ID,
         // Code signing for WebDriverAgent on a real iPhone.
