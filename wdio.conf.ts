@@ -57,6 +57,8 @@ export const config: WebdriverIO.Config = {
             {
                 outputDir: './reports/allure-results',
                 disableWebdriverStepsReporting: true,
+                // Failure screenshots are attached once, by utils/reporting.ts.
+                disableWebdriverScreenshotsReporting: true,
                 reportedEnvironmentVars: { PLATFORM: env.platform },
             },
         ],
