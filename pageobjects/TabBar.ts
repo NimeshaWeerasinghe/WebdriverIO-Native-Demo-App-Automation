@@ -1,17 +1,20 @@
+import { TabBarLocators } from '../locators/tabBar.locators';
+import { forPlatform } from '../utils/platform';
+
 /**
  * The bottom tab bar that is visible on every screen of the app.
  */
 class TabBar {
     get loginTab() {
-        return $('~Login');
+        return $(forPlatform(TabBarLocators.loginTab));
     }
 
     get formsTab() {
-        return $('~Forms');
+        return $(forPlatform(TabBarLocators.formsTab));
     }
 
     async waitForTabBarShown() {
-        await this.loginTab.waitForDisplayed();
+        await this.loginTab.waitForDisplayed({ timeoutMsg: 'The app did not show its tab bar. Is the app launched?' });
     }
 
     async openLogin() {

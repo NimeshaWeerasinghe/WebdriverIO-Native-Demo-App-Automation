@@ -1,57 +1,53 @@
-import { hideKeyboard } from '../helpers/app';
+import { LoginLocators } from '../locators/login.locators';
+import { hideKeyboard } from '../utils/app';
+import { forPlatform } from '../utils/platform';
 import TabBar from './TabBar';
 
 /**
  * Login tab: one form with two modes, "Login" and "Sign up".
- * Elements are found by accessibility id (the `~` prefix), which the app sets on purpose for testing.
  */
-class LoginScreen {
+class LoginPage {
     get screen() {
-        return $('~Login-screen');
-    }
-
-    get loginModeButton() {
-        return $('~button-login-container');
+        return $(forPlatform(LoginLocators.screen));
     }
 
     get signUpModeButton() {
-        return $('~button-sign-up-container');
+        return $(forPlatform(LoginLocators.signUpModeButton));
     }
 
     get emailInput() {
-        return $('~input-email');
+        return $(forPlatform(LoginLocators.emailInput));
     }
 
     get passwordInput() {
-        return $('~input-password');
+        return $(forPlatform(LoginLocators.passwordInput));
     }
 
     get repeatPasswordInput() {
-        return $('~input-repeat-password');
+        return $(forPlatform(LoginLocators.repeatPasswordInput));
     }
 
     get loginButton() {
-        return $('~button-LOGIN');
+        return $(forPlatform(LoginLocators.loginButton));
     }
 
     get signUpButton() {
-        return $('~button-SIGN UP');
+        return $(forPlatform(LoginLocators.signUpButton));
     }
 
-    /** Validation messages have no accessibility id, so they are found by their visible text. */
     errorMessage(text: string) {
-        return $(`android=new UiSelector().text("${text}")`);
+        return $(forPlatform(LoginLocators.errorMessage(text)));
     }
 
     async open() {
         await TabBar.openLogin();
-        await this.screen.waitForDisplayed();
+        await this.screen.waitForDisplayed({ timeoutMsg: 'The Login screen did not open.' });
     }
 
     async openSignUp() {
         await this.open();
         await this.signUpModeButton.click();
-        await this.repeatPasswordInput.waitForDisplayed();
+        await this.repeatPasswordInput.waitForDisplayed({ timeoutMsg: 'The Sign up form did not open.' });
     }
 
     async login(email: string, password: string) {
@@ -70,4 +66,4 @@ class LoginScreen {
     }
 }
 
-export default new LoginScreen();
+export default new LoginPage();

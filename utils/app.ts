@@ -1,14 +1,18 @@
-import TabBar from '../screens/TabBar';
+import { env } from '../config/env';
+import TabBar from '../pageobjects/TabBar';
 
-const APP_PACKAGE = 'com.wdiodemoapp';
+/** The installed app's id: the Android package or the iOS bundle id. */
+export function appId(): string {
+    return driver.isIOS ? env.ios!.bundleId : env.android!.appPackage;
+}
 
 /**
  * Closes and reopens the app so every test starts from a clean state
  * (empty forms, Home tab) and no test depends on another one.
  */
 export async function restartApp() {
-    await driver.terminateApp(APP_PACKAGE);
-    await driver.activateApp(APP_PACKAGE);
+    await driver.terminateApp(appId());
+    await driver.activateApp(appId());
     await TabBar.waitForTabBarShown();
 }
 
