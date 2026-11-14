@@ -6,7 +6,20 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework", "@wdio/appium-service"]
+    "types": [
+      "node",
+      "@wdio/globals/types",
+      "@wdio/mocha-framework",
+      "@wdio/appium-service",
+      "@wdio/allure-reporter"
+    ]
   },
-  "include": ["test/**/*.ts", "wdio.conf.ts"]
+  "include": [
+    "tests/**/*.ts",
+    "pageobjects/**/*.ts",
+    "locators/**/*.ts",
+    "config/**/*.ts",
+    "utils/**/*.ts",
+    "wdio.conf.ts"
+  ]
 }

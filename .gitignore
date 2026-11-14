@@ -1,6 +1,25 @@
+# Dependencies
 node_modules/
-apps/*.apk
-apps/*.zip
+
+# App binaries (downloaded or provided locally, never committed)
+apps/android/*.apk
+apps/ios/*.ipa
+apps/ios/*.app
+apps/ios/*.zip
+
+# Reports, logs and screenshots (generated on every run)
+reports/*
+!reports/.gitkeep
 logs/
 screenshots/
+*.log
+
+# Local environment settings: device ids, signing team ids
+.env
+.env.*
+!.env.example
+
+# OS and editor files
 .DS_Store
+.idea/
+.vscode/

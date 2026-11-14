@@ -1,62 +1,74 @@
 import path from 'node:path';
+import { capabilitiesForPlatform } from './config/capabilities';
+import { env } from './config/env';
+import { attachFailureDetails, logSessionInfo } from './utils/reporting';
 
-// Use the Appium server and UiAutomator2 driver installed in this project's node_modules,
-// so nothing has to be installed globally.
+// Use the Appium server and drivers installed in this project's node_modules,
+// so the run does not depend on a global Appium installation.
 process.env.APPIUM_HOME = path.resolve('.');
 
+const LOG_DIR = './reports/logs';
+
 /**
- * WebdriverIO config for running the tests on one Android device or emulator.
- *
- * Optional environment variables:
- *   ANDROID_UDID     run on a specific device (see `adb devices`); defaults to the only one connected
- *   ANDROID_VERSION  platform version, e.g. "15"; not needed when only one device is connected
+ * One configuration for both platforms. PLATFORM (android | ios) picks the capabilities;
+ * the tests and page objects are the same for both.
  */
 export const config: WebdriverIO.Config = {
     runner: 'local',
-    specs: ['./test/specs/**/*.spec.ts'],
+    tsConfigPath: './tsconfig.json',
+
+    // Connect to an external Appium server when APPIUM_SERVER_URL is set.
+    ...(env.appiumServer ?? {}),
+
+    specs: ['./tests/**/*.spec.ts'],
+    suites: {
+        smoke: ['./tests/smoke/*.spec.ts'],
+        signup: ['./tests/signup/*.spec.ts'],
+        login: ['./tests/login/*.spec.ts'],
+        forms: ['./tests/forms/*.spec.ts'],
+    },
 
     // One device means one session at a time.
     maxInstances: 1,
-
-    capabilities: [
-        {
-            platformName: 'Android',
-            'appium:automationName': 'UiAutomator2',
-            'appium:deviceName': 'Android',
-            'appium:udid': process.env.ANDROID_UDID,
-            'appium:platformVersion': process.env.ANDROID_VERSION,
-            'appium:app': path.resolve('./apps/android.wdio.native.app.v2.2.0.apk'),
-            'appium:appPackage': 'com.wdiodemoapp',
-            'appium:appActivity': '.MainActivity',
-            'appium:autoGrantPermissions': true,
-            'appium:newCommandTimeout': 240,
-        },
-    ],
+    capabilities: [capabilitiesForPlatform()],
 
     logLevel: 'warn',
-    outputDir: './logs',
+    outputDir: LOG_DIR,
     bail: 0,
 
-    // Default time that explicit waits (waitForDisplayed, waitUntil, ...) keep polling.
+    // Default time that explicit waits (waitForDisplayed, waitUntil, expect matchers) keep polling.
     waitforTimeout: 10000,
-    connectionRetryTimeout: 120000,
-    connectionRetryCount: 2,
+    connectionRetryTimeout: 180000,
+    connectionRetryCount: 1,
 
-    // Starts an Appium server for the run and stops it afterwards.
-    services: [['appium', { logPath: './logs' }]],
+    // Starts a local Appium server for the run, unless an external one is configured.
+    services: env.appiumServer ? [] : [['appium', { logPath: LOG_DIR }]],
 
     framework: 'mocha',
-    reporters: ['spec'],
     mochaOpts: {
         ui: 'bdd',
         timeout: 120000,
     },
 
-    // Save a screenshot of every failing test to help debugging.
-    afterTest: async function (test, _context, { passed }) {
+    reporters: [
+        'spec',
+        [
+            'allure',
+            {
+                outputDir: './reports/allure-results',
+                disableWebdriverStepsReporting: true,
+                reportedEnvironmentVars: { PLATFORM: env.platform },
+            },
+        ],
+    ],
+
+    before: async () => {
+        await logSessionInfo();
+    },
+
+    afterTest: async (test, _context, { passed, error }) => {
         if (!passed) {
-            const name = `${test.parent} - ${test.title}`.replace(/[^a-z0-9-]+/gi, '_');
-            await browser.saveScreenshot(`./logs/${name}.png`);
+            await attachFailureDetails(`${test.parent} - ${test.title}`, error);
         }
     },
 };
