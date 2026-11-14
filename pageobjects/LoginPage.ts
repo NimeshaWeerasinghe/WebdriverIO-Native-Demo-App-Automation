@@ -1,4 +1,4 @@
-import { hideKeyboard } from '../utils/app';
+import { closeIosPasswordSuggestion, hideKeyboard } from '../utils/app';
 import { forPlatform } from '../utils/platform';
 import TabBar from './TabBar';
 
@@ -70,15 +70,22 @@ class LoginPage {
 
     async login(email: string, password: string) {
         await this.emailInput.setValue(email);
-        await this.passwordInput.setValue(password);
+        await this.typePassword(this.passwordInput, password);
         await hideKeyboard();
         await this.loginButton.click();
     }
 
+    /** Focuses a password field first, so the iOS strong-password sheet can be closed before typing. */
+    async typePassword(field: ChainablePromiseElement, value: string) {
+        await field.click();
+        await closeIosPasswordSuggestion();
+        await field.setValue(value);
+    }
+
     async signUp(email: string, password: string, repeatPassword: string) {
         await this.emailInput.setValue(email);
-        await this.passwordInput.setValue(password);
-        await this.repeatPasswordInput.setValue(repeatPassword);
+        await this.typePassword(this.passwordInput, password);
+        await this.typePassword(this.repeatPasswordInput, repeatPassword);
         await hideKeyboard();
         await this.signUpButton.click();
     }

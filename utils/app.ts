@@ -23,6 +23,24 @@ export async function hideKeyboard() {
  * test can navigate from a clean screen without restarting the app.
  */
 export async function closeOverlays() {
+    await closeIosPasswordSuggestion({ waitForIt: false });
     await hideKeyboard();
     await NativeAlert.closeIfOpen();
+}
+
+/**
+ * iOS shows a "Use Strong Password?" sheet when a password field gets focus. It covers the form
+ * and swallows typed text, so close it when it appears. Does nothing on Android.
+ * With waitForIt, it gives the sheet up to 3 seconds to slide in (right after focusing a field).
+ */
+export async function closeIosPasswordSuggestion({ waitForIt = true } = {}) {
+    if (!driver.isIOS) return;
+    const closeButton = $('~xmark');
+    const shown = waitForIt
+        ? await closeButton.waitForDisplayed({ timeout: 3000 }).catch(() => false)
+        : await closeButton.isDisplayed();
+    if (shown) {
+        await closeButton.click();
+        await closeButton.waitForDisplayed({ reverse: true, timeoutMsg: 'The iOS password suggestion did not close.' });
+    }
 }
