@@ -83,4 +83,11 @@ export const config: WebdriverIO.Config = {
             await attachFailureDetails(`${test.parent} - ${test.title}`, error);
         }
     },
+
+    // A failing beforeEach (e.g. navigation) is not a test, so attach its details here.
+    afterHook: async (test, _context, { passed, error }) => {
+        if (!passed) {
+            await attachFailureDetails(`${test.parent} - ${test.title}`, error);
+        }
+    },
 };
