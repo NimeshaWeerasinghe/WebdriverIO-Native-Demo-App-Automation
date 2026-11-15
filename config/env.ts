@@ -110,11 +110,23 @@ function readIos() {
     };
 }
 
+/** WAIT_TIMEOUT: how long explicit waits keep polling, in milliseconds (default 10 seconds). */
+function readWaitTimeout(): number {
+    const value = read('WAIT_TIMEOUT');
+    if (!value) return 10000;
+    const timeout = Number(value);
+    if (!Number.isInteger(timeout) || timeout <= 0) {
+        fail(`WAIT_TIMEOUT must be a positive number of milliseconds, but it is "${value}".`);
+    }
+    return timeout;
+}
+
 const platform = readPlatform();
 
 export const env = {
     platform,
     appiumServer: readAppiumServer(),
+    waitTimeout: readWaitTimeout(),
     // Only the selected platform is validated, so Android runs need no iOS settings and vice versa.
     android: platform === 'android' ? readAndroid() : undefined,
     ios: platform === 'ios' ? readIos() : undefined,
