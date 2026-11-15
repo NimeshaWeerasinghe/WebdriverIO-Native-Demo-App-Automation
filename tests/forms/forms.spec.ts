@@ -1,6 +1,7 @@
 import FormsPage from '../../pageobjects/FormsPage';
 import NativeAlert from '../../pageobjects/NativeAlert';
-import { messages } from '../data/testData';
+import LoginPage from '../../pageobjects/LoginPage';
+import { formsInput, messages } from '../data/testData';
 
 describe('Forms', () => {
     beforeEach(async () => {
@@ -36,5 +37,40 @@ describe('Forms', () => {
         expect(await NativeAlert.getTitle()).toBe(messages.activeButton.title);
         expect(await NativeAlert.getMessage()).toBe(messages.activeButton.message);
         await NativeAlert.tapOk();
+    });
+
+    it('FORMS-04: accepts long text up to the 30-character limit', async () => {
+        const expected = formsInput.longText.slice(0, formsInput.maxLength);
+        await FormsPage.typeText(formsInput.longText);
+
+        await expect(FormsPage.textInput).toHaveText(expected);
+        await expect(FormsPage.typedTextResult).toHaveText(expected);
+    });
+
+    it('FORMS-05: echoes special characters and numbers unchanged', async () => {
+        await FormsPage.typeText(formsInput.specialCharacters);
+
+        await expect(FormsPage.typedTextResult).toHaveText(formsInput.specialCharacters);
+    });
+
+    it('FORMS-06: clears the echoed text when the input is cleared', async () => {
+        await FormsPage.typeText(formsInput.textBeforeNavigation);
+        await expect(FormsPage.typedTextResult).toHaveText(formsInput.textBeforeNavigation);
+
+        await FormsPage.clearText();
+        await expect(FormsPage.typedTextResult).toHaveText('');
+    });
+
+    it('FORMS-07: keeps the typed text after navigating away and back', async () => {
+        await FormsPage.typeText(formsInput.textBeforeNavigation);
+
+        await LoginPage.open();
+        await FormsPage.open();
+
+        await expect(FormsPage.typedTextResult).toHaveText(formsInput.textBeforeNavigation);
+
+        // The field is still usable.
+        await FormsPage.typeText(formsInput.textAfterNavigation);
+        await expect(FormsPage.typedTextResult).toHaveText(formsInput.textAfterNavigation);
     });
 });
