@@ -1,15 +1,12 @@
-import { closeIosPasswordSuggestion } from '../utils/app';
+import { closeIosPasswordSuggestion, closeOverlays, ensureAppInForeground, hideKeyboard, waitForScreen } from '../utils/app';
 import { forPlatform } from '../utils/platform';
-import BasePage from './BasePage';
 import TabBar from './TabBar';
 
 /**
  * Login tab: one form with two modes, "Login" and "Sign up".
  * Elements are found by accessibility id (`~`), which is the same on Android and iOS.
  */
-class LoginPage extends BasePage {
-    protected readonly screenName = 'Login';
-
+class LoginPage {
     get screen() {
         return $('~Login-screen');
     }
@@ -76,14 +73,20 @@ class LoginPage extends BasePage {
         await this.repeatPasswordInput.waitForDisplayed({ timeoutMsg: 'The Sign up form did not open.' });
     }
 
-    protected async navigate() {
-        await TabBar.openLogin();
+    /** Opens the Login screen from wherever the app is. Skips the tab tap when it is already showing. */
+    async open() {
+        await ensureAppInForeground();
+        await closeOverlays();
+        if (!(await this.screen.isDisplayed())) {
+            await TabBar.openLogin();
+        }
+        await waitForScreen(this.screen, 'Login');
     }
 
     async login(email: string, password: string) {
         await this.emailInput.setValue(email);
         await this.typePassword(this.passwordInput, password);
-        await this.hideKeyboard();
+        await hideKeyboard(this.title);
         await this.loginButton.click();
     }
 
@@ -98,7 +101,7 @@ class LoginPage extends BasePage {
         await this.emailInput.setValue(email);
         await this.typePassword(this.passwordInput, password);
         await this.typePassword(this.repeatPasswordInput, repeatPassword);
-        await this.hideKeyboard();
+        await hideKeyboard(this.title);
         await this.signUpButton.click();
     }
 }

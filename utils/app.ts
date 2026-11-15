@@ -103,3 +103,17 @@ export async function closeAndroidSavePasswordPrompt(): Promise<boolean> {
     await cancelButton.waitForDisplayed({ reverse: true, timeoutMsg: 'The "Save sign-in info?" prompt did not close.' });
     return true;
 }
+
+/**
+ * Waits for a screen to show after navigating to it. If Android's "Save sign-in info?" prompt
+ * pops up over it meanwhile (it can appear right after leaving the Login screen), it is closed first.
+ */
+export async function waitForScreen(screen: ChainablePromiseElement, screenName: string) {
+    await driver.waitUntil(
+        async () => {
+            await closeAndroidSavePasswordPrompt();
+            return screen.isDisplayed();
+        },
+        { timeoutMsg: `The ${screenName} screen did not open.` },
+    );
+}

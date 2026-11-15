@@ -1,5 +1,5 @@
+import { closeOverlays, ensureAppInForeground, hideKeyboard, waitForScreen } from '../utils/app';
 import { forPlatform } from '../utils/platform';
-import BasePage from './BasePage';
 import TabBar from './TabBar';
 
 export type SwitchState = 'ON' | 'OFF';
@@ -7,9 +7,7 @@ export type SwitchState = 'ON' | 'OFF';
 /**
  * Forms tab: a text input that is echoed back, a switch, a dropdown and two buttons.
  */
-class FormsPage extends BasePage {
-    protected readonly screenName = 'Forms';
-
+class FormsPage {
     get screen() {
         return $('~Forms-screen');
     }
@@ -44,14 +42,20 @@ class FormsPage extends BasePage {
         return $('~button-Active');
     }
 
-    protected async navigate() {
-        await TabBar.openForms();
+    /** Opens the Forms screen from wherever the app is. Skips the tab tap when it is already showing. */
+    async open() {
+        await ensureAppInForeground();
+        await closeOverlays();
+        if (!(await this.screen.isDisplayed())) {
+            await TabBar.openForms();
+        }
+        await waitForScreen(this.screen, 'Forms');
     }
 
     /** Types into the input field, then closes the keyboard so it does not cover other controls. */
     async typeText(text: string) {
         await this.textInput.setValue(text);
-        await this.hideKeyboard();
+        await hideKeyboard(this.title);
     }
 
     /** Android reports the switch state in "checked", iOS in "value" ("1" when on). */
