@@ -117,15 +117,14 @@ export async function closeAndroidAutofillSuggestions() {
 /**
  * After a login, Android's autofill service (e.g. Samsung Pass or Google) may ask
  * "Save sign-in info?" when the app leaves the form. Answer "Cancel" if it is showing.
- * Returns true when a prompt was closed. Does nothing on iOS.
+ * Does nothing on iOS.
  */
-export async function closeAndroidSavePasswordPrompt(): Promise<boolean> {
-    if (!driver.isAndroid) return false;
+export async function closeAndroidSavePasswordPrompt() {
+    if (!driver.isAndroid) return;
     const cancelButton = $('id=android:id/autofill_save_no');
-    if (!(await cancelButton.isDisplayed())) return false;
+    if (!(await cancelButton.isDisplayed())) return;
     await cancelButton.click();
     await cancelButton.waitForDisplayed({ reverse: true, timeoutMsg: 'The "Save sign-in info?" prompt did not close.' });
-    return true;
 }
 
 /**

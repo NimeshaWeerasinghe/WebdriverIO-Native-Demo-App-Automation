@@ -2,7 +2,7 @@ import allure from '@wdio/allure-reporter';
 import { deviceInfo } from './platform';
 
 /** Prints the device and session details once per session, so every log shows where the tests ran. */
-export async function logSessionInfo() {
+export function logSessionInfo() {
     console.log('Appium session started:', JSON.stringify(deviceInfo(), null, 2));
 }
 

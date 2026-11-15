@@ -76,8 +76,8 @@ export const config: WebdriverIO.Config = {
         ],
     ],
 
-    before: async () => {
-        await logSessionInfo();
+    before: () => {
+        logSessionInfo();
     },
 
     afterTest: async (test, _context, { passed, error }) => {

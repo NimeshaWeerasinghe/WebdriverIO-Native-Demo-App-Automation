@@ -88,7 +88,7 @@ class LoginPage {
         await ensureAppInForeground();
         await closeOverlays();
         if (!(await this.screen.isDisplayed())) {
-            await TabBar.openLogin();
+            await TabBar.tab('Login').click();
         }
         await waitForScreen(this.screen, 'Login');
     }

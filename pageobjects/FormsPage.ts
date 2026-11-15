@@ -76,7 +76,7 @@ class FormsPage {
         await ensureAppInForeground();
         await closeOverlays();
         if (!(await this.screen.isDisplayed())) {
-            await TabBar.openForms();
+            await TabBar.tab('Forms').click();
         }
         await waitForScreen(this.screen, 'Forms');
     }
