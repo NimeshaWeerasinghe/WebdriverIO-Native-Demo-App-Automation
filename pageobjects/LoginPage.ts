@@ -1,4 +1,4 @@
-import { closeIosPasswordSuggestion, hideKeyboard } from '../utils/app';
+import { closeIosPasswordSuggestion, hideKeyboard, waitForScreen } from '../utils/app';
 import { forPlatform } from '../utils/platform';
 import TabBar from './TabBar';
 
@@ -65,7 +65,7 @@ class LoginPage {
 
     async openTab() {
         await TabBar.openLogin();
-        await this.screen.waitForDisplayed({ timeoutMsg: 'The Login screen did not open.' });
+        await waitForScreen(this.screen, 'Login');
     }
 
     async login(email: string, password: string) {

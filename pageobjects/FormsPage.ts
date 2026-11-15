@@ -1,3 +1,4 @@
+import { waitForScreen } from '../utils/app';
 import TabBar from './TabBar';
 
 /**
@@ -30,7 +31,7 @@ class FormsPage {
 
     async open() {
         await TabBar.openForms();
-        await this.screen.waitForDisplayed({ timeoutMsg: 'The Forms screen did not open.' });
+        await waitForScreen(this.screen, 'Forms');
     }
 
     /** Puts the switch in the OFF state, since the app keeps its state between tests. */
