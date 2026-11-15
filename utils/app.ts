@@ -29,6 +29,7 @@ export async function ensureAppInForeground() {
  * so the next test can navigate from a clean screen without restarting the app.
  */
 export async function closeOverlays() {
+    await closeAndroidAutofillSuggestions();
     await closeAndroidSavePasswordPrompt();
     await closeIosPasswordSuggestion({ waitForIt: false });
     await hideKeyboard();
@@ -88,6 +89,19 @@ export async function closeIosPasswordSuggestion({ waitForIt = true } = {}) {
         await closeButton.click();
         await closeButton.waitForDisplayed({ reverse: true, timeoutMsg: 'The iOS password suggestion did not close.' });
     }
+}
+
+/**
+ * When an empty sign-in field gets focus, Android's autofill service (e.g. Samsung Pass) may open
+ * a list of saved accounts under it, which covers the next field. Close it with Back if it is showing.
+ * Does nothing on iOS or on devices without autofill.
+ */
+export async function closeAndroidAutofillSuggestions() {
+    if (!driver.isAndroid) return;
+    const suggestions = $('id=android:id/autofill_dataset_picker');
+    if (!(await suggestions.isDisplayed())) return;
+    await driver.back();
+    await suggestions.waitForDisplayed({ reverse: true, timeoutMsg: 'The autofill suggestion list did not close.' });
 }
 
 /**

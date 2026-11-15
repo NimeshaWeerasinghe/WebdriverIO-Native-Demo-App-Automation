@@ -1,4 +1,4 @@
-import { closeIosPasswordSuggestion, closeOverlays, ensureAppInForeground, hideKeyboard, waitForScreen } from '../utils/app';
+import { closeAndroidAutofillSuggestions, closeIosPasswordSuggestion, closeOverlays, ensureAppInForeground, hideKeyboard, waitForScreen } from '../utils/app';
 import { forPlatform } from '../utils/platform';
 import TabBar from './TabBar';
 
@@ -103,15 +103,23 @@ class LoginPage {
     async typeText(field: ChainablePromiseElement, value: string) {
         if (value === '') {
             await field.clearValue();
+            // An empty, focused sign-in field can open the autofill suggestion list on some phones.
+            await closeAndroidAutofillSuggestions();
         } else {
             await field.setValue(value);
         }
     }
 
-    /** Focuses a password field first, so the iOS strong-password sheet can be closed before typing. */
+    /**
+     * On iOS, focuses the field first so the "Use Strong Password?" sheet can be closed before typing.
+     * On Android the field is not tapped: tapping an empty password field on some phones (e.g. Samsung Pass)
+     * opens an autofill suggestion list that covers the next field.
+     */
     async typePassword(field: ChainablePromiseElement, value: string) {
-        await field.click();
-        await closeIosPasswordSuggestion();
+        if (driver.isIOS) {
+            await field.click();
+            await closeIosPasswordSuggestion();
+        }
         await this.typeText(field, value);
     }
 
