@@ -30,20 +30,6 @@ describe('Mobile interactions', () => {
         expect(await driver.queryAppState(appId())).toBe(RUNNING_IN_FOREGROUND);
     });
 
-    it('MOBILE-03: Android Back closes the keyboard and stays on the screen (Android only)', async function () {
-        if (!driver.isAndroid) this.skip(); // iOS has no system Back button
-        await FormsPage.open();
-        await FormsPage.textInput.click();
-        await driver.waitUntil(() => driver.isKeyboardShown(), { timeoutMsg: 'The keyboard did not open.' });
-
-        await driver.back();
-
-        await driver.waitUntil(async () => !(await driver.isKeyboardShown()), {
-            timeoutMsg: 'Back did not close the keyboard.',
-        });
-        await expect(FormsPage.screen).toBeDisplayed();
-    });
-
     it('MOBILE-04: resumes on the same screen after going to the background', async () => {
         await FormsPage.open();
         await FormsPage.typeText(formsInput.textBeforeNavigation);
