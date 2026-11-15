@@ -1,14 +1,27 @@
-import { closeIosPasswordSuggestion, hideKeyboard, waitForScreen } from '../utils/app';
+import { closeIosPasswordSuggestion } from '../utils/app';
 import { forPlatform } from '../utils/platform';
+import BasePage from './BasePage';
 import TabBar from './TabBar';
 
 /**
  * Login tab: one form with two modes, "Login" and "Sign up".
  * Elements are found by accessibility id (`~`), which is the same on Android and iOS.
  */
-class LoginPage {
+class LoginPage extends BasePage {
+    protected readonly screenName = 'Login';
+
     get screen() {
         return $('~Login-screen');
+    }
+
+    /** The title has no accessibility id, so it is found by its text. */
+    get title() {
+        return $(
+            forPlatform({
+                android: 'android=new UiSelector().text("Login / Sign up Form")',
+                ios: '-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "Login / Sign up Form"',
+            }),
+        );
     }
 
     get loginModeButton() {
@@ -51,27 +64,26 @@ class LoginPage {
 
     /** Opens the Login tab in "Login" mode, whatever screen or mode the app was left in. */
     async openLogin() {
-        await this.openTab();
+        await this.open();
         await this.loginModeButton.click();
         await this.repeatPasswordInput.waitForDisplayed({ reverse: true, timeoutMsg: 'The Login form did not open.' });
     }
 
     /** Opens the Login tab in "Sign up" mode, whatever screen or mode the app was left in. */
     async openSignUp() {
-        await this.openTab();
+        await this.open();
         await this.signUpModeButton.click();
         await this.repeatPasswordInput.waitForDisplayed({ timeoutMsg: 'The Sign up form did not open.' });
     }
 
-    async openTab() {
+    protected async navigate() {
         await TabBar.openLogin();
-        await waitForScreen(this.screen, 'Login');
     }
 
     async login(email: string, password: string) {
         await this.emailInput.setValue(email);
         await this.typePassword(this.passwordInput, password);
-        await hideKeyboard();
+        await this.hideKeyboard();
         await this.loginButton.click();
     }
 
@@ -86,7 +98,7 @@ class LoginPage {
         await this.emailInput.setValue(email);
         await this.typePassword(this.passwordInput, password);
         await this.typePassword(this.repeatPasswordInput, repeatPassword);
-        await hideKeyboard();
+        await this.hideKeyboard();
         await this.signUpButton.click();
     }
 }

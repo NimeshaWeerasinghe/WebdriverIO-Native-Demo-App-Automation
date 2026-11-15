@@ -1,23 +1,56 @@
 import { env } from '../config/env';
 import NativeAlert from '../pageobjects/NativeAlert';
+import TabBar from '../pageobjects/TabBar';
+
+// Appium's app states: 4 means "running in the foreground".
+export const RUNNING_IN_FOREGROUND = 4;
 
 /** The installed app's id: the Android package or the iOS bundle id. */
 export function appId(): string {
     return driver.isIOS ? env.ios!.bundleId : env.android!.appPackage;
 }
 
-/** Hides the on-screen keyboard if it is open, so it cannot cover buttons or the tab bar. */
-export async function hideKeyboard() {
+/**
+ * Controlled recovery: if the app is no longer in the foreground (it crashed or was sent to
+ * the background), bring it back. This never restarts or resets the app, and it is logged,
+ * so an interruption is visible in the run output.
+ */
+export async function ensureAppInForeground() {
+    const state = await driver.queryAppState(appId());
+    if (state === RUNNING_IN_FOREGROUND) return;
+    console.warn(`The app was not in the foreground (Appium app state ${state}); bringing it back.`);
+    await driver.activateApp(appId());
+    await TabBar.waitForTabBarShown();
+}
+
+/**
+ * The app stays open for the whole run, so a previous test may have left the keyboard,
+ * an alert or a system prompt open (for example if it failed half-way). This closes them,
+ * so the next test can navigate from a clean screen without restarting the app.
+ */
+export async function closeOverlays() {
+    await closeAndroidSavePasswordPrompt();
+    await closeIosPasswordSuggestion({ waitForIt: false });
+    await hideKeyboard();
+    await NativeAlert.closeIfOpen();
+}
+
+/**
+ * Hides the on-screen keyboard if it is open, so it cannot cover buttons or the tab bar.
+ * iOS has no "hide keyboard" key: it uses the "Done" button above the keyboard when there is one,
+ * otherwise a tap on `iosTapTarget` (plain text such as the screen title), otherwise the keyboard's own keys.
+ */
+export async function hideKeyboard(iosTapTarget?: ChainablePromiseElement) {
     if (!(await driver.isKeyboardShown())) return;
     if (driver.isIOS) {
-        // The iOS keyboard has no "hide" key. Tap the "Done" button above it, or else its return key.
         const doneButton = $('-ios predicate string:type == "XCUIElementTypeButton" AND name == "Done"');
         if (await doneButton.isDisplayed()) {
             await doneButton.click();
+        } else if (iosTapTarget && (await iosTapTarget.isDisplayed())) {
+            // Tapping non-input content closes the keyboard in React Native scroll views.
+            await iosTapTarget.click();
         } else {
-            // Tapping an empty spot of the screen's scroll view (below the title) closes the keyboard in React Native.
-            const { width } = await driver.getWindowRect();
-            await driver.execute('mobile: tap', { x: Math.round(width / 2), y: 110 });
+            await driver.execute('mobile: hideKeyboard', { keys: ['return', 'Return', 'done', 'Done'] });
         }
     } else {
         await driver.hideKeyboard();
@@ -28,15 +61,18 @@ export async function hideKeyboard() {
 }
 
 /**
- * The app stays open for the whole run, so a previous test may have left the keyboard
- * or an alert open (for example if it failed half-way). This closes both, so the next
- * test can navigate from a clean screen without restarting the app.
+ * Waits up to `timeout` ms for an element that may or may not appear (e.g. a system prompt).
+ * Returns false if it did not appear; any other error is passed on.
  */
-export async function closeOverlays() {
-    await closeAndroidSavePasswordPrompt();
-    await closeIosPasswordSuggestion({ waitForIt: false });
-    await hideKeyboard();
-    await NativeAlert.closeIfOpen();
+async function waitForOptionalElement(element: ChainablePromiseElement, timeout: number): Promise<boolean> {
+    const notShown = 'optional element not shown';
+    try {
+        await driver.waitUntil(() => element.isDisplayed(), { timeout, timeoutMsg: notShown });
+        return true;
+    } catch (error) {
+        if ((error as Error).message.includes(notShown)) return false;
+        throw error;
+    }
 }
 
 /**
@@ -47,9 +83,7 @@ export async function closeOverlays() {
 export async function closeIosPasswordSuggestion({ waitForIt = true } = {}) {
     if (!driver.isIOS) return;
     const closeButton = $('~xmark');
-    const shown = waitForIt
-        ? await closeButton.waitForDisplayed({ timeout: 3000 }).catch(() => false)
-        : await closeButton.isDisplayed();
+    const shown = waitForIt ? await waitForOptionalElement(closeButton, 3000) : await closeButton.isDisplayed();
     if (shown) {
         await closeButton.click();
         await closeButton.waitForDisplayed({ reverse: true, timeoutMsg: 'The iOS password suggestion did not close.' });
@@ -68,18 +102,4 @@ export async function closeAndroidSavePasswordPrompt(): Promise<boolean> {
     await cancelButton.click();
     await cancelButton.waitForDisplayed({ reverse: true, timeoutMsg: 'The "Save sign-in info?" prompt did not close.' });
     return true;
-}
-
-/**
- * Waits for a screen to show after navigating to it. If Android's "Save sign-in info?" prompt
- * pops up over it meanwhile, the prompt is closed and the wait continues.
- */
-export async function waitForScreen(screen: ChainablePromiseElement, screenName: string) {
-    await driver.waitUntil(
-        async () => {
-            await closeAndroidSavePasswordPrompt();
-            return screen.isDisplayed();
-        },
-        { timeoutMsg: `The ${screenName} screen did not open.` },
-    );
 }

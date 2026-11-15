@@ -1,5 +1,3 @@
-import { closeOverlays } from '../utils/app';
-
 /**
  * The bottom tab bar that is visible on every screen of the app.
  */
@@ -17,12 +15,10 @@ class TabBar {
     }
 
     async openLogin() {
-        await closeOverlays();
         await this.loginTab.click();
     }
 
     async openForms() {
-        await closeOverlays();
         await this.formsTab.click();
     }
 }
