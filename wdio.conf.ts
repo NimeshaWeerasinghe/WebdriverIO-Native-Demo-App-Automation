@@ -28,6 +28,7 @@ export const config: WebdriverIO.Config = {
             './tests/signup/*.spec.ts',
             './tests/login/*.spec.ts',
             './tests/forms/*.spec.ts',
+            './tests/mobile/*.spec.ts',
         ],
     ],
     suites: {
@@ -35,6 +36,7 @@ export const config: WebdriverIO.Config = {
         signup: ['./tests/signup/*.spec.ts'],
         login: ['./tests/login/*.spec.ts'],
         forms: ['./tests/forms/*.spec.ts'],
+        mobile: ['./tests/mobile/*.spec.ts'],
     },
 
     // One device, one session, tests run one after another.
