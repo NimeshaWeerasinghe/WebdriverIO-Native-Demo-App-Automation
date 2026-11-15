@@ -1,15 +1,14 @@
+import allure from '@wdio/allure-reporter';
 import { env } from '../../config/env';
 import TabBar from '../../pageobjects/TabBar';
-import { appId } from '../../utils/app';
+import { appId, RUNNING_IN_FOREGROUND } from '../../utils/app';
 import { deviceInfo } from '../../utils/platform';
 
-// Appium's app states: 4 means "running in the foreground".
-const RUNNING_IN_FOREGROUND = 4;
-
 describe('Framework verification', () => {
-    it('starts an Appium session on the selected platform and launches the app', async () => {
+    it('SMOKE-01: starts an Appium session on the selected platform and launches the app', async () => {
+        // The device details are also printed once per run by the "before" hook in wdio.conf.ts.
         const info = deviceInfo();
-        console.log('Device and platform:', JSON.stringify(info, null, 2));
+        allure.addAttachment('Device and platform', JSON.stringify(info, null, 2), 'application/json');
 
         expect(info.platform.toLowerCase()).toBe(env.platform);
 

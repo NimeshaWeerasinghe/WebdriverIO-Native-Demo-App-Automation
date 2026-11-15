@@ -7,34 +7,34 @@ describe('Forms', () => {
         await FormsPage.open();
     });
 
-    it('echoes back the text typed into the input field', async () => {
+    it('FORMS-01: echoes back the text typed into the input field', async () => {
         const text = 'Hello WebdriverIO';
-        await FormsPage.textInput.setValue(text);
+        await FormsPage.typeText(text);
 
         await expect(FormsPage.typedTextResult).toHaveText(text);
     });
 
-    it('toggles the switch and updates its label', async () => {
+    it('FORMS-02: toggles the switch and updates its label', async () => {
         await FormsPage.turnSwitchOff();
 
         await expect(FormsPage.switchLabel).toHaveText(messages.switchOff);
-        expect(await FormsPage.isSwitchOn()).toBe(false);
+        expect(await FormsPage.getSwitchState()).toBe('OFF');
 
         await FormsPage.switchToggle.click();
         await expect(FormsPage.switchLabel).toHaveText(messages.switchOn);
-        expect(await FormsPage.isSwitchOn()).toBe(true);
+        expect(await FormsPage.getSwitchState()).toBe('ON');
 
         await FormsPage.switchToggle.click();
         await expect(FormsPage.switchLabel).toHaveText(messages.switchOff);
-        expect(await FormsPage.isSwitchOn()).toBe(false);
+        expect(await FormsPage.getSwitchState()).toBe('OFF');
     });
 
-    it('opens a native alert when the "Active" button is tapped', async () => {
+    it('FORMS-03: opens a native alert when the "Active" button is tapped', async () => {
         await FormsPage.activeButton.click();
 
         await NativeAlert.waitForShown();
-        await expect(NativeAlert.title).toHaveText(messages.activeButton.title);
-        await expect(NativeAlert.message).toHaveText(messages.activeButton.message);
+        expect(await NativeAlert.getTitle()).toBe(messages.activeButton.title);
+        expect(await NativeAlert.getMessage()).toBe(messages.activeButton.message);
         await NativeAlert.tapOk();
     });
 });
