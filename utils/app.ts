@@ -37,26 +37,37 @@ export async function closeOverlays() {
 }
 
 /**
+ * Whether the on-screen keyboard is visible. On iOS, Appium can report a keyboard that has already
+ * slid off-screen as "shown", so iOS checks that the keyboard element is actually displayed.
+ */
+export async function isKeyboardVisible(): Promise<boolean> {
+    if (driver.isIOS) {
+        return $('-ios class chain:**/XCUIElementTypeKeyboard').isDisplayed();
+    }
+    return driver.isKeyboardShown();
+}
+
+/**
  * Hides the on-screen keyboard if it is open, so it cannot cover buttons or the tab bar.
- * iOS has no "hide keyboard" key: it uses the "Done" button above the keyboard when there is one,
- * otherwise a tap on `iosTapTarget` (plain text such as the screen title), otherwise the keyboard's own keys.
+ * iOS has no "hide keyboard" key: it taps `iosTapTarget` (plain text such as the screen title),
+ * which closes the keyboard in React Native screens, otherwise the keyboard's "Done" key.
  */
 export async function hideKeyboard(iosTapTarget?: ChainablePromiseElement) {
-    if (!(await driver.isKeyboardShown())) return;
+    if (!(await isKeyboardVisible())) return;
     if (driver.isIOS) {
         const doneButton = $('-ios predicate string:type == "XCUIElementTypeButton" AND name == "Done"');
-        if (await doneButton.isDisplayed()) {
-            await doneButton.click();
-        } else if (iosTapTarget && (await iosTapTarget.isDisplayed())) {
+        if (iosTapTarget && (await iosTapTarget.isDisplayed())) {
             // Tapping non-input content closes the keyboard in React Native scroll views.
             await iosTapTarget.click();
+        } else if (await doneButton.isDisplayed()) {
+            await doneButton.click();
         } else {
             await driver.execute('mobile: hideKeyboard', { keys: ['return', 'Return', 'done', 'Done'] });
         }
     } else {
         await driver.hideKeyboard();
     }
-    await driver.waitUntil(async () => !(await driver.isKeyboardShown()), {
+    await driver.waitUntil(async () => !(await isKeyboardVisible()), {
         timeoutMsg: 'The on-screen keyboard did not close.',
     });
 }

@@ -1,5 +1,6 @@
 import LoginPage from '../../pageobjects/LoginPage';
 import NativeAlert from '../../pageobjects/NativeAlert';
+import { isKeyboardVisible } from '../../utils/app';
 import { invalidInput, messages, users } from '../data/testData';
 
 describe('Login', () => {
@@ -42,7 +43,7 @@ describe('Login', () => {
         await LoginPage.fillLoginForm(users.valid.email, users.valid.password);
         await LoginPage.closeKeyboard();
 
-        expect(await driver.isKeyboardShown()).toBe(false);
+        expect(await isKeyboardVisible()).toBe(false);
         await expect(LoginPage.loginButton).toBeDisplayed();
 
         await LoginPage.loginButton.click();
