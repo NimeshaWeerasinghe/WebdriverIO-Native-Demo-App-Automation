@@ -16,7 +16,17 @@ class LoginPage {
         return $(
             forPlatform({
                 android: 'android=new UiSelector().text("Login / Sign up Form")',
-                ios: '-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "Login / Sign up Form"',
+                ios: '-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "Login / Sign up Form" AND visible == 1',
+            }),
+        );
+    }
+
+    /** The envelope icon in front of the email field (an icon-font character, it has no id). */
+    get emailIcon() {
+        return $(
+            forPlatform({
+                android: 'android=new UiSelector().text("\u{F01F0}")',
+                ios: '-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "\u{F01F0}" AND visible == 1',
             }),
         );
     }
@@ -95,8 +105,13 @@ class LoginPage {
         await this.typePassword(this.passwordInput, password);
     }
 
+    /**
+     * On iOS the keyboard closes when plain content is tapped. That is the title, unless the keyboard
+     * has pushed the title off-screen; then the email icon, which always stays visible.
+     */
     async closeKeyboard() {
-        await hideKeyboard(this.title);
+        const tapTarget = (await this.title.isDisplayed()) ? this.title : this.emailIcon;
+        await hideKeyboard(tapTarget);
     }
 
     /** Clears the field, then types the value. An empty value just leaves the field empty. */

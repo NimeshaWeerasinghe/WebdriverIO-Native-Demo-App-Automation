@@ -17,7 +17,7 @@ class FormsPage {
         return $(
             forPlatform({
                 android: 'android=new UiSelector().text("Form components")',
-                ios: '-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "Form components"',
+                ios: '-ios predicate string:type == "XCUIElementTypeStaticText" AND label == "Form components" AND visible == 1',
             }),
         );
     }
@@ -42,8 +42,9 @@ class FormsPage {
         return $('~button-Active');
     }
 
+    /** What to tap to open the dropdown: the whole field on Android, the chevron icon on iOS. */
     get dropdown() {
-        return $('~Dropdown');
+        return $(forPlatform({ android: '~Dropdown', ios: '~dropdown-chevron' }));
     }
 
     /** The text field inside the dropdown that shows the selected option. */

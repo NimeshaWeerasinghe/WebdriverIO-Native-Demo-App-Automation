@@ -49,15 +49,14 @@ export async function isKeyboardVisible(): Promise<boolean> {
 
 /**
  * Hides the on-screen keyboard if it is open, so it cannot cover buttons or the tab bar.
- * iOS has no "hide keyboard" key: it taps `iosTapTarget` (plain text such as the screen title),
+ * iOS has no "hide keyboard" key: it taps `iosTapTarget` (plain, non-input content such as the screen title),
  * which closes the keyboard in React Native screens, otherwise the keyboard's "Done" key.
  */
 export async function hideKeyboard(iosTapTarget?: ChainablePromiseElement) {
     if (!(await isKeyboardVisible())) return;
     if (driver.isIOS) {
-        const doneButton = $('-ios predicate string:type == "XCUIElementTypeButton" AND name == "Done"');
+        const doneButton = $('-ios predicate string:type == "XCUIElementTypeButton" AND name == "Done" AND visible == 1');
         if (iosTapTarget && (await iosTapTarget.isDisplayed())) {
-            // Tapping non-input content closes the keyboard in React Native scroll views.
             await iosTapTarget.click();
         } else if (await doneButton.isDisplayed()) {
             await doneButton.click();
