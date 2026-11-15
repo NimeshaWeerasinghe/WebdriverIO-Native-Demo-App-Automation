@@ -10,8 +10,22 @@ export const users = {
 
 export const invalidInput = {
     email: 'not-an-email',
+    emailWithoutDomain: 'user@',
+    emailWithSpaces: '  new.user@example.com  ',
     shortPassword: 'Pass123', // 7 characters, the minimum is 8
     otherPassword: 'Password456',
+};
+
+/** Boundary value: exactly the minimum password length. */
+export const minimumLengthPassword = 'Pass1234'; // 8 characters
+
+export const formsInput = {
+    // The Forms input accepts at most 30 characters (checked in the app), so longer text is cut.
+    maxLength: 30,
+    longText: 'abcdefghij0123456789ABCDEFGHIJklmnopqrst', // 40 characters
+    specialCharacters: 'Abc 123 !@#$%&*()_+=?',
+    textBeforeNavigation: 'Kept after navigation',
+    textAfterNavigation: 'Still editable',
 };
 
 export const messages = {

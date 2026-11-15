@@ -58,6 +58,12 @@ class FormsPage {
         await hideKeyboard(this.title);
     }
 
+    /** Empties the input field, then closes the keyboard. */
+    async clearText() {
+        await this.textInput.clearValue();
+        await hideKeyboard(this.title);
+    }
+
     /** Android reports the switch state in "checked", iOS in "value" ("1" when on). */
     async getSwitchState(): Promise<SwitchState> {
         const isOn = driver.isIOS

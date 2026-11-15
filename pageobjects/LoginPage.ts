@@ -84,24 +84,42 @@ class LoginPage {
     }
 
     async login(email: string, password: string) {
-        await this.emailInput.setValue(email);
-        await this.typePassword(this.passwordInput, password);
-        await hideKeyboard(this.title);
+        await this.fillLoginForm(email, password);
+        await this.closeKeyboard();
         await this.loginButton.click();
+    }
+
+    /** Types the credentials without submitting (the keyboard may stay open). */
+    async fillLoginForm(email: string, password: string) {
+        await this.typeText(this.emailInput, email);
+        await this.typePassword(this.passwordInput, password);
+    }
+
+    async closeKeyboard() {
+        await hideKeyboard(this.title);
+    }
+
+    /** Clears the field, then types the value. An empty value just leaves the field empty. */
+    async typeText(field: ChainablePromiseElement, value: string) {
+        if (value === '') {
+            await field.clearValue();
+        } else {
+            await field.setValue(value);
+        }
     }
 
     /** Focuses a password field first, so the iOS strong-password sheet can be closed before typing. */
     async typePassword(field: ChainablePromiseElement, value: string) {
         await field.click();
         await closeIosPasswordSuggestion();
-        await field.setValue(value);
+        await this.typeText(field, value);
     }
 
     async signUp(email: string, password: string, repeatPassword: string) {
-        await this.emailInput.setValue(email);
+        await this.typeText(this.emailInput, email);
         await this.typePassword(this.passwordInput, password);
         await this.typePassword(this.repeatPasswordInput, repeatPassword);
-        await hideKeyboard(this.title);
+        await this.closeKeyboard();
         await this.signUpButton.click();
     }
 }
