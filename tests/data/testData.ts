@@ -26,6 +26,8 @@ export const formsInput = {
     specialCharacters: 'Abc 123 !@#$%&*()_+=?',
     textBeforeNavigation: 'Kept after navigation',
     textAfterNavigation: 'Still editable',
+    // The three options of the Forms dropdown, as the app shows them.
+    dropdownOptions: ['webdriver.io is awesome', 'Appium is awesome', 'This app is awesome'],
 };
 
 export const messages = {

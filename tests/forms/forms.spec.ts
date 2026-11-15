@@ -73,4 +73,12 @@ describe('Forms', () => {
         await FormsPage.typeText(formsInput.textAfterNavigation);
         await expect(FormsPage.typedTextResult).toHaveText(formsInput.textAfterNavigation);
     });
+
+    it('FORMS-08: selects each of the 3 dropdown options and shows the selection', async () => {
+        for (const option of formsInput.dropdownOptions) {
+            await FormsPage.selectDropdownOption(option);
+
+            await expect(FormsPage.dropdownValue).toHaveText(option);
+        }
+    });
 });

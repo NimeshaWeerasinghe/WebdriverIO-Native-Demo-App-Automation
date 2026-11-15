@@ -42,6 +42,34 @@ class FormsPage {
         return $('~button-Active');
     }
 
+    get dropdown() {
+        return $('~Dropdown');
+    }
+
+    /** The text field inside the dropdown that shows the selected option. */
+    get dropdownValue() {
+        return $(
+            forPlatform({
+                android: 'android=new UiSelector().resourceId("text_input")',
+                ios: '-ios class chain:**/XCUIElementTypeOther[`name == "Dropdown"`]/**/XCUIElementTypeTextField',
+            }),
+        );
+    }
+
+    /** Android: one row of the native option list, found by its text (the rows have no ids of their own). */
+    private androidDropdownOption(option: string) {
+        return $(`android=new UiSelector().resourceId("android:id/text1").text("${option}")`);
+    }
+
+    /** iOS shows the options in a picker wheel with a "Done" button. */
+    private get iosPickerWheel() {
+        return $('-ios class chain:**/XCUIElementTypePickerWheel');
+    }
+
+    private get iosPickerDoneButton() {
+        return $('~done_button');
+    }
+
     /** Opens the Forms screen from wherever the app is. Skips the tab tap when it is already showing. */
     async open() {
         await ensureAppInForeground();
@@ -62,6 +90,21 @@ class FormsPage {
     async clearText() {
         await this.textInput.clearValue();
         await hideKeyboard(this.title);
+    }
+
+    /** Opens the dropdown, picks an option and waits until the dropdown shows it. */
+    async selectDropdownOption(option: string) {
+        await this.dropdown.click();
+        if (driver.isIOS) {
+            await this.iosPickerWheel.waitForDisplayed({ timeoutMsg: 'The dropdown picker did not open.' });
+            await this.iosPickerWheel.setValue(option);
+            await this.iosPickerDoneButton.click();
+        } else {
+            const row = this.androidDropdownOption(option);
+            await row.waitForDisplayed({ timeoutMsg: `The dropdown option "${option}" was not shown.` });
+            await row.click();
+            await row.waitForDisplayed({ reverse: true, timeoutMsg: 'The dropdown list did not close.' });
+        }
     }
 
     /** Android reports the switch state in "checked", iOS in "value" ("1" when on). */
